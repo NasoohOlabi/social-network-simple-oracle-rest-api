@@ -89,6 +89,7 @@ BEGIN
     ,   profile
     ,   feed_id
     ,   chat_id
+    ,  active
     )
     VALUES
         (
@@ -109,6 +110,7 @@ BEGIN
                 , 'public'
                 )
         ,   chat_insert('saved_messages')
+        ,1
         );
     RETURN user_id;
 END;
@@ -139,7 +141,7 @@ CREATE OR REPLACE FUNCTION chat_insert
 BEGIN
     RETURN chat_insert(table_kind(chat_kind));
 END;
-CREATE OR REPLACE FUNCTION page_insert RETURN NUMBER AS
+CREATE OR REPLACE FUNCTION page_insert(page_name VARCHAR2(30)) RETURN NUMBER AS
 DECLARE
     page_id NUMBER(19);
 BEGIN
@@ -148,11 +150,11 @@ BEGIN
     INTO
         page
     (
-        id, feed_id
+        id,name, feed_id
     )
     VALUES
         (
-            page_id, feed_insert
+            page_id,page_name, feed_insert
             (
                 page_id
             , 'public'
@@ -555,27 +557,6 @@ BEGIN
     notify_about_account_relationship(relationship_id);
     RETURN relationship_id;
 END;
-CREATE OR REPLACE FUNCTION conversation_insert
-(
-      user1Id NUMBER(19)
-    , user2Id NUMBER(19)
-) RETURN NUMBER AS
-DECLARE
-    conversation_id NUMBER(19);
-BEGIN
-    conversation_id := chat_insert('conversation');
-    INSERT
-    INTO
-        conversation
-    (
-        id, user_1_id, user_2_id
-    )
-    VALUES
-        (
-            conversation_id, user1Id, user2Id
-        );
-    RETURN conversation_id;
-END;
 CREATE OR REPLACE FUNCTION group_chat_insert
 (
     group_name VARCHAR2(50)
@@ -598,7 +579,7 @@ BEGIN
 END;
 CREATE OR REPLACE FUNCTION member_insert
 (
-      chatterId       NUMBER(19)
+      accountId       NUMBER(19)
     , group_chatId    NUMBER(19)
     , membership_type NUMBER(3)
 ) RETURN NUMBER AS
@@ -614,7 +595,7 @@ BEGIN
     )
     VALUES
         (
-            member_id, membership_type, chatterId, group_chatId
+            member_id, membership_type, accountId, group_chatId
         );
     RETURN member_id;
 END;

@@ -166,16 +166,16 @@ BEGIN
                     notification_insert(group_member, 'message', message_id);
                 END LOOP;
         WHEN 'conversation' THEN SELECT
-                                     da_friend_of_x(user_1_id
-                                         , user_2_id, message_from_id)
+                                     da_friend_of_x(source_id
+                                         , target_id, message_from_id)
                                  INTO other_in_conversation
                                  FROM
-                                     conversation
+                                     account_relationship
                                  WHERE
-                                       id = message_chat_id
+                                       account_relationship.chat_id = message_chat_id
                                    AND (
-                                                   id = user_1_id = message_from_id
-                                               OR user_2_id = message_from_id);
+                                                   source_id = message_from_id
+                                               OR target_id = message_from_id);
                                  notification_insert(
                                      other_in_conversation
                                      , 'message'
