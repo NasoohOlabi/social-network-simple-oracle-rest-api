@@ -10,7 +10,7 @@ DECLARE
         FROM entity
                  JOIN "USER"
                       ON "USER".id = x
-                 JOIN user_relationship
+                 JOIN account_relationship
                       ON source_id = "USER".id OR target_id = "USER".id
         WHERE entity.id = item_id;
 BEGIN
@@ -45,7 +45,7 @@ DECLARE
                 FROM entity
                          JOIN "USER"
                               ON "USER".id = x
-                         JOIN user_relationship
+                         JOIN account_relationship
                               ON source_id = x OR target_id = x
                 WHERE entity.id = item_id) - (SELECT user_id
                                               FROM visibility_user_set

@@ -9,7 +9,7 @@ CREATE TABLE feed
 )
 ;
 
--- user -> chatter
+-- user -> account
 CREATE TABLE "USER"
 (
     id           NUMBER(19)                 NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE "USER"
             REFERENCES feed (id),
     CONSTRAINT fk_chatter_user
         FOREIGN KEY (id)
-            REFERENCES chatter (id)
+            REFERENCES account (id)
 )
 ;
 
@@ -62,7 +62,7 @@ CREATE TABLE chat
 )
 ;
 
--- page -> chatter
+-- page -> account
 CREATE TABLE page
 (
     id      NUMBER(19) NOT NULL,
@@ -70,7 +70,7 @@ CREATE TABLE page
     PRIMARY KEY (id),
     CONSTRAINT fk_chatter_page
         FOREIGN KEY (id)
-            REFERENCES chatter (id),
+            REFERENCES account (id),
     CONSTRAINT fk_page_feed1
         FOREIGN KEY (feed_id)
             REFERENCES feed (id)
@@ -80,8 +80,8 @@ CREATE TABLE page
 
 CREATE INDEX fk_page_feed1_idx ON page (feed_id ASC);
 
--- chatter
-CREATE TABLE chatter
+-- account
+CREATE TABLE account
 (
     id   NUMBER(19) NOT NULL,
     PRIMARY KEY (id),
@@ -90,7 +90,7 @@ CREATE TABLE chatter
 ;
 
 
-CREATE INDEX fk_chatter_idx ON chatter (id ASC);
+CREATE INDEX fk_chatter_idx ON account (id ASC);
 
 -- message -> notifiable
 CREATE TABLE message
@@ -110,7 +110,7 @@ CREATE TABLE message
             REFERENCES chat (id),
     CONSTRAINT fk_message_from
         FOREIGN KEY (message_from)
-            REFERENCES chatter (id)
+            REFERENCES account (id)
 )
 ;
 
@@ -121,29 +121,6 @@ CREATE INDEX message_from ON message (message_from ASC);
 
 
 CREATE INDEX fk_message_chat1_idx ON message (chat_id ASC);
-
--- group -> entity -> notifiable
-CREATE TABLE "GROUP"
-(
-    id      NUMBER(19)                 NOT NULL,
-    CONSTRAINT fk_entity_id
-        FOREIGN KEY (id)
-            REFERENCES entity (id),
-    title   VARCHAR2(75)               NOT NULL,
-    summary VARCHAR2(255) DEFAULT NULL NULL,
-    status  NUMBER(5)     DEFAULT '0'  NOT NULL,
-    content VARCHAR2(500) DEFAULT NULL NULL,
-    feed_id NUMBER(19)                 NOT NULL,
-    PRIMARY KEY (id),
-    CONSTRAINT fk_group_feed1
-        FOREIGN KEY (feed_id)
-            REFERENCES feed (id)
-)
-;
-
-
-
-CREATE INDEX fk_group_feed1_idx ON "GROUP" (feed_id ASC);
 
 -- group_chat -> chat
 CREATE TABLE group_chat
@@ -197,7 +174,7 @@ CREATE TABLE entity
     PRIMARY KEY (id),
     CONSTRAINT fk_owner_id
         FOREIGN KEY (id)
-            REFERENCES chatter (id),
+            REFERENCES account (id),
     kind         NUMBER(4)            NOT NULL
 )
 ;
@@ -262,7 +239,7 @@ CREATE TABLE member
     group_chat_id NUMBER(19)             NOT NULL,
     CONSTRAINT fk_user_id
         FOREIGN KEY (chatter_id)
-            REFERENCES chatter (id),
+            REFERENCES account (id),
     CONSTRAINT fk_group_chat_id
         FOREIGN KEY (group_chat_id)
             REFERENCES group_chat (id)
@@ -283,10 +260,10 @@ CREATE TABLE conversation
     PRIMARY KEY (id),
     CONSTRAINT fk_user_1_chatter
         FOREIGN KEY (user_1_id)
-            REFERENCES chatter (id),
+            REFERENCES account (id),
     CONSTRAINT fk_user_2_chatter
         FOREIGN KEY (user_2_id)
-            REFERENCES chatter (id),
+            REFERENCES account (id),
     CONSTRAINT fk_chat_id
         FOREIGN KEY (id)
             REFERENCES chat (id)
@@ -374,64 +351,9 @@ CREATE TABLE "COMMENT"
 
 CREATE INDEX fk_comment_post1_idx ON "COMMENT" (post_id ASC);
 
--- user_page_relationship -> notifiable
-CREATE TABLE user_page_relationship
-(
-    id      NUMBER(19) NOT NULL,
-    CONSTRAINT fk_notifiable_id
-        FOREIGN KEY (id)
-            REFERENCES notifiable (id),
-    page_id NUMBER(19) NOT NULL,
-    user_id NUMBER(19) NOT NULL,
-    type    NUMBER(10) NULL,
-    PRIMARY KEY (id),
-    CONSTRAINT fk_page_follower_page1
-        FOREIGN KEY (page_id)
-            REFERENCES page (id),
-    CONSTRAINT fk_page_follower_user1
-        FOREIGN KEY (user_id)
-            REFERENCES "USER" (id)
-)
-;
 
-
-CREATE INDEX fk_page_follower_page1_idx ON user_page_relationship (page_id ASC);
-
-
-CREATE INDEX fk_page_follower_user1_idx ON user_page_relationship (user_id ASC);
-
--- group_member
-CREATE TABLE group_member
-(
-    id       NUMBER(19)                 NOT NULL,
-    group_id NUMBER(19)                 NOT NULL,
-    user_id  NUMBER(19)                 NOT NULL,
-    role_id  NUMBER(5)     DEFAULT '0'  NOT NULL,
-    status   NUMBER(5)     DEFAULT '0'  NOT NULL,
-    created  DATE                       NOT NULL,
-    updated  DATE          DEFAULT NULL NULL,
-    notes    VARCHAR2(500) DEFAULT NULL NULL,
-    PRIMARY KEY (id),
-    CONSTRAINT fk_member_group
-        FOREIGN KEY (group_id)
-            REFERENCES "GROUP" (id),
-    CONSTRAINT fk_member_user
-        FOREIGN KEY (user_id)
-            REFERENCES "USER" (id)
-)
-;
-
-
-CREATE UNIQUE INDEX uq_member ON group_member (group_id ASC, user_id ASC);
-
-
-CREATE INDEX idx_member_group ON group_member (group_id ASC);
-
-
-CREATE INDEX idx_member_user ON group_member (user_id ASC);
-
--- user_relationship -> notifiable
-CREATE TABLE user_relationship
+-- account_relationship -> notifiable
+CREATE TABLE account_relationship
 (
     id        NUMBER(19)                 NOT NULL,
     CONSTRAINT fk_notifiable_id
@@ -447,22 +369,22 @@ CREATE TABLE user_relationship
     PRIMARY KEY (id),
     CONSTRAINT fk_friend_source
         FOREIGN KEY (source_id)
-            REFERENCES "USER" (id),
+            REFERENCES account (id),
     CONSTRAINT fk_friend_target
         FOREIGN KEY (target_id)
-            REFERENCES "USER" (id)
+            REFERENCES account (id)
 )
 ;
 
 
 
-CREATE UNIQUE INDEX uq_friend ON user_relationship (source_id ASC, target_id ASC);
+CREATE UNIQUE INDEX uq_friend ON account_relationship (source_id ASC, target_id ASC);
 
 
-CREATE INDEX idx_friend_source ON user_relationship (source_id ASC);
+CREATE INDEX idx_friend_source ON account_relationship (source_id ASC);
 
 
-CREATE INDEX idx_friend_target ON user_relationship (target_id ASC);
+CREATE INDEX idx_friend_target ON account_relationship (target_id ASC);
 
 -- visibility_user_set
 CREATE TABLE visibility_user_set
@@ -498,8 +420,8 @@ CREATE TABLE event
 )
 ;
 
--- participant
-CREATE TABLE participant
+-- event_participant
+CREATE TABLE event_participant
 (
     id       NUMBER(19) NOT NULL,
     event_id NUMBER(19) NOT NULL,
@@ -515,8 +437,8 @@ CREATE TABLE participant
 ;
 
 
-CREATE INDEX fk_event_has_user_user1_idx ON participant (user_id ASC);
+CREATE INDEX fk_event_has_user_user1_idx ON event_participant (user_id ASC);
 
 
-CREATE INDEX fk_event_has_user_event1_idx ON participant (event_id ASC);
+CREATE INDEX fk_event_has_user_event1_idx ON event_participant (event_id ASC);
 

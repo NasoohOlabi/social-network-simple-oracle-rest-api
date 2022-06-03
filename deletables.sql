@@ -1,9 +1,9 @@
 -- notifiable = false abstract
--- chatter = false abstract
+-- account = false abstract
 -- chat = false abstract
 -- notification = true
 -- member = true
--- participant = true
+-- event_participant = true
 -- visibility_user_set = true
 -- group_member = true
 -- ########### 8 sequences needed ###########
@@ -17,10 +17,10 @@
 -- share -> post -> entity -> notifiable = false soft by entity
 -- message -> notifiable ???
 -- react -> notifiable ???
--- user_relationship -> notifiable ???
+-- account_relationship -> notifiable ???
 -- user_page_relationship -> notifiable ???
--- user -> chatter ???
--- page -> chatter ???
+-- user -> account ???
+-- page -> account ???
 -- conversation -> chat ???
 -- group_chat -> chat ???
 CREATE OR REPLACE PROCEDURE delete_visibility_user_set
@@ -37,7 +37,7 @@ CREATE OR REPLACE PROCEDURE delete_particpant
     , userId NUMBER(19)
 ) IS
 begin
-    delete from participant where event_id = eventId and user_id = userId;
+    delete from event_participant where event_id = eventId and user_id = userId;
 END;
 CREATE OR REPLACE PROCEDURE delete_entity
 (

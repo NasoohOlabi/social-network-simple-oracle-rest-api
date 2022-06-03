@@ -1,26 +1,23 @@
 -- chat
--- chatter
+-- account
 -- comment
 -- conversation
 -- entity
 -- event
 -- feed
--- group
 -- group_chat
--- group_member
 -- media
 -- member
 -- message
 -- notifiable
 -- notification
 -- page
--- participant
+-- event_participant
 -- post
 -- react
 -- share
 -- user
--- user_relationship
--- user_page_relationship
+-- account_relationship
 -- visibility_user_set
 CREATE OR REPLACE FUNCTION table_kind
 (
@@ -29,30 +26,27 @@ CREATE OR REPLACE FUNCTION table_kind
 BEGIN
     CASE LOWER(table_name)
         WHEN 'chat' THEN RETURN 1;
-        WHEN 'chatter' THEN RETURN 2;
+        WHEN 'account' THEN RETURN 2;
         WHEN 'comment' THEN RETURN 3;
         WHEN 'conversation' THEN RETURN 4;
         WHEN 'entity' THEN RETURN 5;
         WHEN 'event' THEN RETURN 6;
         WHEN 'feed' THEN RETURN 7;
-        WHEN 'group' THEN RETURN 8;
-        WHEN 'group_chat' THEN RETURN 9;
-        WHEN 'group_member' THEN RETURN 10;
-        WHEN 'media' THEN RETURN 11;
-        WHEN 'member' THEN RETURN 12;
-        WHEN 'message' THEN RETURN 13;
-        WHEN 'notifiable' THEN RETURN 14;
-        WHEN 'notification' THEN RETURN 15;
-        WHEN 'page' THEN RETURN 16;
-        WHEN 'participant' THEN RETURN 17;
-        WHEN 'post' THEN RETURN 18;
-        WHEN 'react' THEN RETURN 19;
-        WHEN 'share' THEN RETURN 20;
-        WHEN 'user' THEN RETURN 21;
-        WHEN 'user_relationship' THEN RETURN 22;
-        WHEN 'user_page_relationship' THEN RETURN 23;
-        WHEN 'visibility_user_set' THEN RETURN 24;
-        WHEN 'saved_massages' THEN RETURN 25;
+        WHEN 'group_chat' THEN RETURN 8;
+        WHEN 'media' THEN RETURN 9;
+        WHEN 'member' THEN RETURN 10;
+        WHEN 'message' THEN RETURN 11;
+        WHEN 'notifiable' THEN RETURN 12;
+        WHEN 'notification' THEN RETURN 13;
+        WHEN 'page' THEN RETURN 14;
+        WHEN 'event_participant' THEN RETURN 15;
+        WHEN 'post' THEN RETURN 16;
+        WHEN 'react' THEN RETURN 17;
+        WHEN 'share' THEN RETURN 18;
+        WHEN 'user' THEN RETURN 19;
+        WHEN 'account_relationship' THEN RETURN 20;
+        WHEN 'visibility_user_set' THEN RETURN 21;
+        WHEN 'saved_massages' THEN RETURN 22;
         ELSE RETURN 0;
         END CASE;
 END;
@@ -66,30 +60,27 @@ CREATE OR REPLACE FUNCTION table_kind
 BEGIN
     CASE table_id
         WHEN 1 THEN RETURN 'chat';
-        WHEN 2 THEN RETURN 'chatter';
+        WHEN 2 THEN RETURN 'account';
         WHEN 3 THEN RETURN 'comment';
         WHEN 4 THEN RETURN 'conversation';
         WHEN 5 THEN RETURN 'entity';
         WHEN 6 THEN RETURN 'event';
         WHEN 7 THEN RETURN 'feed';
-        WHEN 8 THEN RETURN 'group';
-        WHEN 9 THEN RETURN 'group_chat';
-        WHEN 10 THEN RETURN 'group_member';
-        WHEN 11 THEN RETURN 'media';
-        WHEN 12 THEN RETURN 'member';
-        WHEN 13 THEN RETURN 'message';
-        WHEN 14 THEN RETURN 'notifiable';
-        WHEN 15 THEN RETURN 'notification';
-        WHEN 16 THEN RETURN 'page';
-        WHEN 17 THEN RETURN 'participant';
-        WHEN 18 THEN RETURN 'post';
-        WHEN 19 THEN RETURN 'react';
-        WHEN 20 THEN RETURN 'share';
-        WHEN 21 THEN RETURN 'user';
-        WHEN 22 THEN RETURN 'user_relationship';
-        WHEN 23 THEN RETURN 'user_page_relationship';
-        WHEN 24 THEN RETURN 'visibility_user_set';
-        WHEN 25 THEN RETURN 'saved_massages';
+        WHEN 8 THEN RETURN 'group_chat';
+        WHEN 9 THEN RETURN 'media';
+        WHEN 10 THEN RETURN 'member';
+        WHEN 11 THEN RETURN 'message';
+        WHEN 12 THEN RETURN 'notifiable';
+        WHEN 13 THEN RETURN 'notification';
+        WHEN 14 THEN RETURN 'page';
+        WHEN 15 THEN RETURN 'event_participant';
+        WHEN 16 THEN RETURN 'post';
+        WHEN 17 THEN RETURN 'react';
+        WHEN 18 THEN RETURN 'share';
+        WHEN 19 THEN RETURN 'user';
+        WHEN 20 THEN RETURN 'account_relationship';
+        WHEN 21 THEN RETURN 'visibility_user_set';
+        WHEN 22 THEN RETURN 'saved_massages';
         ELSE RETURN 'unknown';
         END CASE;
 END;
