@@ -36,11 +36,12 @@ BEGIN
         , 'feed');
     INSERT
     INTO
-        feed
-    (id
-    )
+        feed(
+        id
+            )
     VALUES
-        (entity_id
+        (
+            entity_id
         );
     RETURN entity_id;
 END;
@@ -48,10 +49,11 @@ CREATE OR REPLACE FUNCTION feed_insert
 (
       feed_owner_id   NUMBER(19)
     , feed_visibility VARCHAR2
-    , table_name      VARCHAR2
 ) RETURN NUMBER AS
 BEGIN
-    RETURN feed_insert(feed_owner_id, feed_visibility, table_kind(table_name));
+    RETURN feed_insert(feed_owner_id
+        , visibility(feed_visibility)
+        );
 END;
 CREATE OR REPLACE FUNCTION user_insert
 (
@@ -68,44 +70,45 @@ CREATE OR REPLACE FUNCTION user_insert
 DECLARE
     user_id NUMBER(19);
 BEGIN
-    user_id := chatter_insert('user');
+    user_id := account_insert('user');
     INSERT
     INTO
         "USER"
-    ( id
-    , first_name
-    , middle_name
-    , last_name
-    , username
-    , mobile
-    , email
-    , passwordHash
-    , registeredAt
-    , lastLogin
-    , intro
-    , profile
-    , feed_id
-    , chat_id
+    (
+        id
+    ,   first_name
+    ,   middle_name
+    ,   last_name
+    ,   username
+    ,   mobile
+    ,   email
+    ,   passwordHash
+    ,   registeredAt
+    ,   lastLogin
+    ,   intro
+    ,   profile
+    ,   feed_id
+    ,   chat_id
     )
     VALUES
-        ( user_id
-        , user_first_name
-        , user_middle_name
-        , user_last_name
-        , user_username
-        , user_mobile
-        , user_email
-        , user_passwordHash
-        , SYSDATE
-        , SYSDATE
-        , user_intro
-        , user_profile
-        , feed_insert(
-                  user_id
-              , 'public'
-              , 'user'
-              )
-        , chat_insert('saved_messages')
+        (
+            user_id
+        ,   user_first_name
+        ,   user_middle_name
+        ,   user_last_name
+        ,   user_username
+        ,   user_mobile
+        ,   user_email
+        ,   user_passwordHash
+        ,   SYSDATE
+        ,   SYSDATE
+        ,   user_intro
+        ,   user_profile
+        ,   feed_insert(
+                    user_id
+                , 'public'
+                )
+        ,   chat_insert('saved_messages')
         );
     RETURN user_id;
 END;
@@ -116,13 +119,16 @@ CREATE OR REPLACE FUNCTION chat_insert
 DECLARE
     chat_id NUMBER(19);
 BEGIN
+    chat_id := chat_seq.nextval;
     INSERT
     INTO
         chat
-    (id, kind
+    (
+        id, kind
     )
     VALUES
-        (chat_id, chat_kind
+        (
+            chat_id, chat_kind
         );
     RETURN chat_id;
 END;
@@ -137,26 +143,26 @@ CREATE OR REPLACE FUNCTION page_insert RETURN NUMBER AS
 DECLARE
     page_id NUMBER(19);
 BEGIN
-    page_id := chatter_insert('page');
+    page_id := account_insert('page');
     INSERT
     INTO
         page
-    (id, feed_id
+    (
+        id, feed_id
     )
     VALUES
-        ( page_id
-        , feed_insert
-              (
-                  page_id
-              , 'public'
-              , 'page'
-              )
+        (
+            page_id, feed_insert
+            (
+                page_id
+            , 'public'
+            )
         );
     RETURN page_id;
 END;
-CREATE OR REPLACE FUNCTION chatter_insert
+CREATE OR REPLACE FUNCTION account_insert
 (
-    chatter_kind NUMBER(4)
+    account_kind NUMBER(4)
 ) RETURN NUMBER(19) AS
 DECLARE
     new_id NUMBER(19) := account_seq.NEXTVAL;
@@ -164,19 +170,21 @@ BEGIN
     INSERT
     INTO
         account
-    (id, kind
+    (
+        id, kind
     )
     VALUES
-        (new_id, chatter_kind
+        (
+            new_id, account_kind
         );
     RETURN new_id;
 END;
-CREATE OR REPLACE FUNCTION chatter_insert
+CREATE OR REPLACE FUNCTION account_insert
 (
     table_name VARCHAR2
 ) RETURN NUMBER(19) AS
 BEGIN
-    RETURN chatter_insert(table_kind(table_name));
+    RETURN account_insert(table_kind(table_name));
 END;
 CREATE OR REPLACE FUNCTION message_insert
 (
@@ -192,36 +200,15 @@ BEGIN
     INSERT
     INTO
         message
-    (id, message_from, message, viewed, time, chat_id
+    (
+        id, message_from, message, viewed, time, chat_id
     )
     VALUES
-        ( message_id
-        , message_from_value
-        , message_value
-        , viewed_value
-        , SYSDATE
-        , chat_id_value
+        (
+            message_id, message_from_value, message_value, viewed_value, SYSDATE, chat_id_value
         );
+    notify_about_message(message_id);
     RETURN message_id;
-END;
-CREATE OR REPLACE FUNCTION group_insert
-(
-      group_title      VARCHAR2(75)
-    , group_summary    VARCHAR2(255)
-    , group_status     NUMBER(5)
-    , group_content    VARCHAR2(500)
-    , group_owner      NUMBER(19)
-    , group_visibility VARCHAR2
-) RETURN NUMBER AS
-BEGIN
-    RETURN group_insert(
-            group_title
-        , group_summary
-        , group_status
-        , group_content
-        , group_owner
-        , table_kind(group_visibility)
-        );
 END;
 CREATE OR REPLACE FUNCTION notifiable_insert
 (
@@ -233,10 +220,12 @@ BEGIN
     INSERT
     INTO
         notifiable
-    (id, kind
+    (
+        id, kind
     )
     VALUES
-        (new_id, notifiable_kind
+        (
+            new_id, notifiable_kind
         );
     RETURN new_id;
 END;
@@ -247,11 +236,9 @@ CREATE OR REPLACE FUNCTION notifiable_insert
 BEGIN
     RETURN notifiable_insert(table_kind(table_name));
 END;
-
--- ########## ENTITY INSERTS ##################################################
 CREATE OR REPLACE FUNCTION entity_insert
 (
-      OWNER             NUMBER(19)
+      entity_owner      NUMBER(19)
     , entity_visibility NUMBER(10)
     , entity_kind       NUMBER(4)
 ) RETURN NUMBER(19) AS
@@ -262,22 +249,24 @@ BEGIN
     INSERT
     INTO
         entity
-    (id, owner_id, time_created, visibility, active, kind
+    (
+        id, owner_id, time_created, visibility, active, kind
     )
     VALUES
-        (NEW_ENTITY_ID, OWNER, SYSDATE, entity_visibility, 1, entity_kind
+        (
+            NEW_ENTITY_ID, entity_owner, SYSDATE, entity_visibility, 1, entity_kind
         );
     RETURN NEW_ENTITY_ID;
 END;
 CREATE OR REPLACE FUNCTION entity_insert
 (
-      OWNER             NUMBER(19)
+      entity_owner      NUMBER(19)
     , entity_visibility VARCHAR2
     , entity_kind       VARCHAR2
 ) RETURN NUMBER(19) AS
 BEGIN
     RETURN entity_insert(
-            OWNER
+            entity_owner
         , visibility(entity_visibility)
         , table_kind(entity_kind)
         );
@@ -287,54 +276,63 @@ CREATE OR REPLACE FUNCTION post_insert
       text_value      VARCHAR2(500)
     , target_feed     NUMBER(19)
     , post_kind       NUMBER(4)
-    , OWNER_ID        NUMBER
+    , post_owner        NUMBER
     , post_visibility NUMBER(10)
 ) RETURN NUMBER AS
 DECLARE
     post_id NUMBER := entity_insert
-                          (OWNER_ID
+                          (post_owner
                           , post_visibility
                           , table_kind('POST'));
-
 BEGIN
     INSERT
     INTO
-        post(id, feed_id, text, kind
+        post(
+        id, feed_id, text, kind
             )
     VALUES
-        (post_id, target_feed, text_value, post_kind
+        (
+            post_id, target_feed, text_value, post_kind
         );
+    notify_about_entity('new post',post_id);
     RETURN post_id;
 END;
--- post isn't abstract
 CREATE OR REPLACE FUNCTION post_insert
 (
       text_value  VARCHAR2(500)
     , target_feed NUMBER(19)
     , post_kind   VARCHAR2
-    , OWNER_ID    NUMBER
+    , post_owner    NUMBER
     , visibility  VARCHAR2
 ) RETURN NUMBER AS
 BEGIN
-    RETURN post_insert(text_value, target_feed, table_kind(post_kind), OWNER_ID, visibility(visibility));
+    RETURN post_insert(
+        text_value
+        , target_feed
+        , table_kind(post_kind)
+        , post_owner
+        , visibility(visibility));
 END;
 CREATE OR REPLACE FUNCTION event_insert
 (
     event_timing DATE, event_owner NUMBER(19), event_visibility NUMBER(10)
 ) RETURN NUMBER
     IS
-    NEW_ID NUMBER;
+    entity_id NUMBER;
 BEGIN
-    NEW_ID := entity_insert(event_owner, event_visibility, 'event');
+    entity_id := entity_insert(event_owner, event_visibility, 'event');
     INSERT
     INTO
         event
-    (id, timing
+    (
+        id, timing
     )
     VALUES
-        (NEW_ID, event_timing
+        (
+            entity_id, event_timing
         );
-    RETURN NEW_ID;
+    notify_about_entity('new event',entity_id);
+    RETURN entity_id;
 END;
 CREATE OR REPLACE FUNCTION event_insert
 (
@@ -361,10 +359,12 @@ BEGIN
     INSERT
     INTO
         notification
-    (id, user_id, "TYPE", item_id, time_created
+    (
+        id, user_id, "TYPE", item_id, time_created
     )
     VALUES
-        (notification_id, user_id_value, type_value, item_id_value, SYSDATE
+        (
+            notification_id, user_id_value, type_value, item_id_value, SYSDATE
         );
     RETURN notification_id;
 END;
@@ -383,10 +383,12 @@ BEGIN
     INSERT
     INTO
         media
-    (id, path
+    (
+        id, path
     )
     VALUES
-        (media_id, path_value
+        (
+            media_id, path_value
         );
     RETURN media_id;
 END;
@@ -428,10 +430,12 @@ BEGIN
     INSERT
     INTO
         "SHARE"
-    (id, post_id
+    (
+        id, post_id
     )
     VALUES
-        (share_id, post_id_value
+        (
+            share_id, post_id_value
         );
     RETURN share_id;
 END;
@@ -470,10 +474,12 @@ BEGIN
     INSERT
     INTO
         comment
-    (id, post_id
+    (
+        id, post_id
     )
     VALUES
-        (comment_id, post_id_value
+        (
+            comment_id, post_id_value
         );
     RETURN comment_id;
 END;
@@ -502,23 +508,22 @@ CREATE OR REPLACE FUNCTION react_insert
 ) RETURN NUMBER AS
 DECLARE
     react_id           NUMBER(19);
-    reacted_to_user_id NUMBER(19);
 BEGIN
     react_id := notifiable_insert('react');
-    -- Get the user_id of the person who reacted to the post
-    SELECT owner_id INTO reacted_to_user_id FROM entity WHERE id = react_post_id;
-    notification_insert(reacted_to_user_id, 1, react_id);
     INSERT
     INTO
         react
-    (id, post_id, user_id, "TYPE"
+    (
+        id, post_id, user_id, "TYPE"
     )
     VALUES
-        (react_id, react_post_id, react_user_id, react_type
+        (
+            react_id, react_post_id, react_user_id, react_type
         );
+    notify_about_react(react_id);
     RETURN react_id;
 END;
-CREATE OR REPLACE FUNCTION user_relationship_insert
+CREATE OR REPLACE FUNCTION account_relationship_insert
 (
       sourceId            NUMBER(19)
     , targetId            NUMBER(19)
@@ -533,12 +538,21 @@ BEGIN
     INSERT
     INTO
         account_relationship
-    (id, source_id, target_id, "TYPE", created, updated, status, notes
+    (
+        id, source_id, target_id, "TYPE", created, updated, status, notes
     )
     VALUES
-        ( relationship_id, sourceId, targetId, relationship_type, SYSDATE, SYSDATE, relationship_status
-        , relationship_notes
+        (
+            relationship_id
+        ,   sourceId
+        ,   targetId
+        ,   relationship_type
+        ,   SYSDATE
+        ,   SYSDATE
+        ,   relationship_status
+        ,   relationship_notes
         );
+    notify_about_account_relationship(relationship_id);
     RETURN relationship_id;
 END;
 CREATE OR REPLACE FUNCTION conversation_insert
@@ -553,10 +567,12 @@ BEGIN
     INSERT
     INTO
         conversation
-    (id, user_1_id, user_2_id
+    (
+        id, user_1_id, user_2_id
     )
     VALUES
-        (conversation_id, user1Id, user2Id
+        (
+            conversation_id, user1Id, user2Id
         );
     RETURN conversation_id;
 END;
@@ -571,10 +587,12 @@ BEGIN
     INSERT
     INTO
         group_chat
-    (id, name
+    (
+        id, name
     )
     VALUES
-        (group_chat_id, group_name
+        (
+            group_chat_id, group_name
         );
     RETURN group_chat_id;
 END;
@@ -591,14 +609,16 @@ BEGIN
     INSERT
     INTO
         member
-    (id, "TYPE", chatter_id, group_chat_id
+    (
+        id, "TYPE", account_id, group_chat_id
     )
     VALUES
-        (member_id, membership_type, chatterId, group_chatId
+        (
+            member_id, membership_type, chatterId, group_chatId
         );
     RETURN member_id;
 END;
-CREATE OR REPLACE FUNCTION participant_insert
+CREATE OR REPLACE FUNCTION event_participant_insert
 (
       eventId NUMBER(19)
     , userId  NUMBER(19)
@@ -610,10 +630,12 @@ BEGIN
     INSERT
     INTO
         event_participant
-    (id, event_id, user_id
+    (
+        id, event_id, user_id
     )
     VALUES
-        (participant_id, eventId, userId
+        (
+            participant_id, eventId, userId
         );
     RETURN participant_id;
 END;
@@ -629,10 +651,12 @@ BEGIN
     INSERT
     INTO
         visibility_user_set
-    (id, entity_id, user_id
+    (
+        id, entity_id, user_id
     )
     VALUES
-        (visibility_user_list_id, entityId, userId
+        (
+            visibility_user_list_id, entityId, userId
         );
     RETURN visibility_user_list_id;
 END;

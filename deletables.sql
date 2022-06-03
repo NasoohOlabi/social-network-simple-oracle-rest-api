@@ -31,7 +31,7 @@ CREATE OR REPLACE PROCEDURE delete_visibility_user_set
 begin
     delete from visibility_user_set where entity_id = entityId and user_id = userId;
 END;
-CREATE OR REPLACE PROCEDURE delete_particpant
+CREATE OR REPLACE PROCEDURE delete_event_participant
 (
     eventId NUMBER(19)
     , userId NUMBER(19)

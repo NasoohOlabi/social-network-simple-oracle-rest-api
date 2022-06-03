@@ -12,20 +12,20 @@ CREATE TABLE feed
 -- user -> account
 CREATE TABLE "USER"
 (
-    id           NUMBER(19)                 NOT NULL,
-    first_name   VARCHAR2(50)               NOT NULL,
-    middle_name  VARCHAR2(50)               NOT NULL,
-    last_name    VARCHAR2(50)               NOT NULL,
-    username     VARCHAR2(50)               NOT NULL,
-    mobile       NUMBER(15)                 NOT NULL,
-    email        VARCHAR2(50)               NOT NULL,
-    passwordHash VARCHAR2(32)               NOT NULL,
-    registeredAt DATE                       NOT NULL,
-    lastLogin    DATE                       NOT NULL,
-    intro        VARCHAR2(255) DEFAULT NULL NULL,
-    profile      VARCHAR2(500) DEFAULT NULL NULL,
-    feed_id      NUMBER(19)                 NOT NULL,
-    chat_id      NUMBER(19)                 NOT NULL,
+    id           NUMBER(19)   NOT NULL,
+    first_name   VARCHAR2(50) NOT NULL,
+    middle_name  VARCHAR2(50) NOT NULL,
+    last_name    VARCHAR2(50) NOT NULL,
+    username     VARCHAR2(50) NOT NULL,
+    mobile       NUMBER(15)   NOT NULL,
+    email        VARCHAR2(50) NOT NULL,
+    passwordHash VARCHAR2(32) NOT NULL,
+    registeredAt DATE         NOT NULL,
+    lastLogin    DATE         NOT NULL,
+    intro        VARCHAR2(255) DEFAULT NULL,
+    profile      VARCHAR2(500) DEFAULT NULL,
+    feed_id      NUMBER(19)   NOT NULL,
+    chat_id      NUMBER(19)   NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT fk_user_feed1
         FOREIGN KEY (feed_id)
@@ -101,7 +101,7 @@ CREATE TABLE message
             REFERENCES notifiable (id),
     message_from NUMBER(19)               NOT NULL,
     message      VARCHAR2(500)            NOT NULL,
-    viewed       VARCHAR2(1) DEFAULT NULL NULL,
+    viewed       VARCHAR2(1)  NOT NULL,
     time         DATE                     NOT NULL,
     chat_id      NUMBER(19)               NOT NULL,
     PRIMARY KEY (id),
@@ -234,11 +234,11 @@ CREATE TABLE member
 (
     id            NUMBER(19)             NOT NULL,
     PRIMARY KEY (id),
-    chatter_id    NUMBER(19)             NOT NULL,
+    account_id    NUMBER(19)             NOT NULL,
     type          NUMBER(3) DEFAULT NULL NULL,
     group_chat_id NUMBER(19)             NOT NULL,
     CONSTRAINT fk_user_id
-        FOREIGN KEY (chatter_id)
+        FOREIGN KEY (account_id)
             REFERENCES account (id),
     CONSTRAINT fk_group_chat_id
         FOREIGN KEY (group_chat_id)
@@ -247,7 +247,7 @@ CREATE TABLE member
 ;
 
 
-CREATE UNIQUE INDEX user_id_UNIQUE ON member (chatter_id ASC, group_chat_id ASC);
+CREATE UNIQUE INDEX user_id_UNIQUE ON member (account_id ASC, group_chat_id ASC);
 
 CREATE INDEX fk_participant_group_chat1_idx ON member (group_chat_id ASC);
 
@@ -350,7 +350,6 @@ CREATE TABLE "COMMENT"
 
 
 CREATE INDEX fk_comment_post1_idx ON "COMMENT" (post_id ASC);
-
 
 -- account_relationship -> notifiable
 CREATE TABLE account_relationship
