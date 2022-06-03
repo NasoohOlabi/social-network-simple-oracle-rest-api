@@ -125,7 +125,7 @@ CREATE OR REPLACE PROCEDURE notify_about_react
 DECLARE
     reacted_to_user_id NUMBER(19);
 BEGIN
-    -- Get the user_id of the person who reacted to the post
+    -- Get the account_id of the person who reacted to the post
     SELECT owner_id INTO reacted_to_user_id FROM entity WHERE id = react_id;
     notification_insert(reacted_to_user_id, 'react', react_id);
 END;
@@ -190,7 +190,7 @@ CREATE OR REPLACE PROCEDURE notify_about_account_relationship
 DECLARE
     befriended_user_id NUMBER(19);
 begin
-    -- Get the user_id of the person who was befriended
+    -- Get the account_id of the person who was befriended
     SELECT target_id INTO befriended_user_id
                    FROM account_relationship
                    WHERE id = account_relationship_id;

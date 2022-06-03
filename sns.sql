@@ -2,7 +2,7 @@
 CREATE TABLE feed
 (
     id NUMBER(19) NOT NULL,
-    CONSTRAINT fk_entity_id
+    CONSTRAINT fk_feed_entity
         FOREIGN KEY (id)
             REFERENCES entity (id),
     PRIMARY KEY (id)
@@ -28,10 +28,10 @@ CREATE TABLE "USER"
     chat_id      NUMBER(19)              NOT NULL,
     active       NUMBER(1)     DEFAULT 1 NOT NULL,
     PRIMARY KEY (id),
-    CONSTRAINT fk_user_feed1
+    CONSTRAINT fk_user_feed
         FOREIGN KEY (feed_id)
             REFERENCES feed (id),
-    CONSTRAINT fk_account_user
+    CONSTRAINT fk_user_account
         FOREIGN KEY (id)
             REFERENCES account (id)
 )
@@ -71,7 +71,7 @@ CREATE TABLE page
     name    VARCHAR2(30) NOT NULL ,
     feed_id NUMBER(19) NOT NULL,
     PRIMARY KEY (id),
-    CONSTRAINT fk_account_page
+    CONSTRAINT fk_page_account
         FOREIGN KEY (id)
             REFERENCES account (id),
     CONSTRAINT fk_page_feed
@@ -97,7 +97,7 @@ CREATE TABLE account
 CREATE TABLE message
 (
     id           NUMBER(19)    NOT NULL,
-    CONSTRAINT fk_notifiable_id
+    CONSTRAINT fk_notifiable
         FOREIGN KEY (id)
             REFERENCES notifiable (id),
     message_from NUMBER(19)    NOT NULL,
@@ -106,10 +106,10 @@ CREATE TABLE message
     time         DATE          NOT NULL,
     chat_id      NUMBER(19)    NOT NULL,
     PRIMARY KEY (id),
-    CONSTRAINT fk_chat_id
+    CONSTRAINT fk_chat
         FOREIGN KEY (chat_id)
             REFERENCES chat (id),
-    CONSTRAINT fk_message_from
+    CONSTRAINT fk_message
         FOREIGN KEY (message_from)
             REFERENCES account (id)
 )
@@ -124,7 +124,7 @@ CREATE TABLE group_chat
     id   NUMBER(19)   NOT NULL,
     name VARCHAR2(50) NOT NULL,
     PRIMARY KEY (id),
-    CONSTRAINT fk_group_chat_chat1
+    CONSTRAINT fk_group_chat_chat
         FOREIGN KEY (id)
             REFERENCES chat (id)
 )
@@ -134,13 +134,13 @@ CREATE TABLE group_chat
 CREATE TABLE post
 (
     id      NUMBER(19)                 NOT NULL,
-    CONSTRAINT fk_entity_id
+    CONSTRAINT fk_post_entity
         FOREIGN KEY (id)
             REFERENCES entity (id),
     feed_id NUMBER(19)                 NOT NULL,
     text    VARCHAR2(500) DEFAULT NULL NULL,
     PRIMARY KEY (id),
-    CONSTRAINT fk_post_feed1
+    CONSTRAINT fk_post_feed
         FOREIGN KEY (feed_id)
             REFERENCES feed (id),
     kind    NUMBER(4)                  NOT NULL
@@ -161,7 +161,7 @@ CREATE TABLE entity
     visibility   NUMBER(10)           NOT NULL,
     active       NUMBER(10) DEFAULT 1 NOT NULL,
     PRIMARY KEY (id),
-    CONSTRAINT fk_owner_id
+    CONSTRAINT fk_entity_account
         FOREIGN KEY (id)
             REFERENCES account (id),
     kind         NUMBER(4)            NOT NULL
@@ -189,15 +189,15 @@ CREATE TABLE notification
 (
     id           NUMBER(19)            NOT NULL,
     type         VARCHAR2(50)          NOT NULL,
-    user_id      NUMBER(19)            NOT NULL,
+    account_id      NUMBER(19)            NOT NULL,
     viewed       Number(1) DEFAULT 0 NULL,
     time_created DATE                  NOT NULL,
     item_id      NUMBER(19)            NULL,
-    PRIMARY KEY (user_id,id),
-    CONSTRAINT fk_user_id
-        FOREIGN KEY (user_id)
-            REFERENCES "USER" (id),
-    CONSTRAINT fk_notifiable_id
+    PRIMARY KEY (account_id,id),
+    CONSTRAINT fk_notification_account
+        FOREIGN KEY (account_id)
+            REFERENCES account (id),
+    CONSTRAINT fk_notification_notifiable
         FOREIGN KEY (item_id)
             REFERENCES notifiable (id)
 )
@@ -213,10 +213,10 @@ CREATE TABLE member
     account_id    NUMBER(19)             NOT NULL,
     type          NUMBER(3) DEFAULT NULL NULL,
     group_chat_id NUMBER(19)             NOT NULL,
-    CONSTRAINT fk_user_id
+    CONSTRAINT fk_member_account
         FOREIGN KEY (account_id)
             REFERENCES account (id),
-    CONSTRAINT fk_group_chat_id
+    CONSTRAINT fk_member_group_chat
         FOREIGN KEY (group_chat_id)
             REFERENCES group_chat (id)
 )
@@ -246,10 +246,10 @@ CREATE TABLE "SHARE"
     id      NUMBER(19) NOT NULL,
     post_id NUMBER(19) NOT NULL,
     PRIMARY KEY (id),
-    CONSTRAINT fk_media_post
+    CONSTRAINT fk_share_post
         FOREIGN KEY (id)
             REFERENCES post (id),
-    CONSTRAINT fk_media_shared_post
+    CONSTRAINT fk_share_shared_post
         FOREIGN KEY (post_id)
             REFERENCES post (id)
 )
@@ -268,10 +268,10 @@ CREATE TABLE react
     post_id NUMBER(19)                NOT NULL,
     type    VARCHAR2(50) DEFAULT NULL NULL,
     PRIMARY KEY (id),
-    CONSTRAINT fk_react_user1
+    CONSTRAINT fk_react_user
         FOREIGN KEY (user_id)
             REFERENCES "USER" (id),
-    CONSTRAINT fk_react_post1
+    CONSTRAINT fk_react_post
         FOREIGN KEY (post_id)
             REFERENCES post (id)
 )
@@ -287,7 +287,7 @@ CREATE TABLE "COMMENT"
     post_id NUMBER(19)                 NOT NULL,
     text    VARCHAR2(500) DEFAULT NULL NULL,
     PRIMARY KEY (id),
-    CONSTRAINT fk_comment_post1
+    CONSTRAINT fk_comment_post
         FOREIGN KEY (post_id)
             REFERENCES post (id),
     CONSTRAINT fk_comment_entity

@@ -362,7 +362,7 @@ BEGIN
     INTO
         notification
     (
-        id, user_id, "TYPE", item_id, time_created
+        id, account_id, "TYPE", item_id, time_created
     )
     VALUES
         (
