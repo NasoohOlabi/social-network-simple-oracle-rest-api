@@ -1,0 +1,27 @@
+{
+  "name": "sns",
+  "version": "1.0.0",
+  "description": "social network rest api",
+  "main": "index.js",
+  "scripts": {
+    "watch": "nodemon ./index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NasoohOlabi/social-network-simple-oracle-rest-api.git"
+  },
+  "author": "Nassouh AlOlabi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NasoohOlabi/social-network-simple-oracle-rest-api/issues"
+  },
+  "homepage": "https://github.com/NasoohOlabi/social-network-simple-oracle-rest-api#readme",
+  "dependencies": {
+    "express": "^4.18.1",
+    "oracledb": "^5.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.16"
+  }
+}
