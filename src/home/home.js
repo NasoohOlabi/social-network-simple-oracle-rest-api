@@ -9,9 +9,15 @@ router.get("/", (req, res) => {
 	let myParam = +req.body.myParam;
 	myParam += 1;
 
-	db("select * from employees", {}, (err, result) => { 
+	const pr = require('../Models/Repositories/post')
 
-		console.log(`result: ${result}`)
+	const v = pr.insert.post
+
+	db(v.query, v.bind("whassup1",4,'public'), (err, result) => {
+
+		console.log(`result: ${JSON.stringify(result)}`)
+		// console.log(`result: ${JSON.stringify(result.metaData)}`)
+		// console.log(`result: ${JSON.stringify(result.rows[0])}`)
 		console.log(`err: ${err}`)
 
 	})

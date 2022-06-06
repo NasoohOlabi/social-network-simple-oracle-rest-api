@@ -1,13 +1,85 @@
--- feed -> entity -> notifiable
-CREATE TABLE feed
+CREATE TABLE notifiable
 (
-    id NUMBER(19) NOT NULL,
-    CONSTRAINT fk_feed_entity
-        FOREIGN KEY (id)
-            REFERENCES entity (id),
-    PRIMARY KEY (id)
+    id   NUMBER(19) NOT NULL,
+    PRIMARY KEY (id),
+    kind NUMBER(4)  NOT NULL
+);
+-- account
+CREATE TABLE account
+(
+    id   NUMBER(19) NOT NULL,
+    PRIMARY KEY (id),
+    kind NUMBER(4)  NOT NULL
 )
 ;
+-- entity -> notifiable
+CREATE TABLE entity
+(
+    id           NUMBER(19)           NOT NULL,
+    CONSTRAINT fk_entity_notifiable
+        FOREIGN KEY (id)
+            REFERENCES notifiable (id),
+    owner_id     NUMBER(19)           NOT NULL,
+    time_created DATE                 NOT NULL,
+    visibility   NUMBER(10)           NOT NULL,
+    active       NUMBER(10) DEFAULT 1 NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_entity_account
+        FOREIGN KEY (owner_id)
+            REFERENCES account (id),
+    kind         NUMBER(4)            NOT NULL
+)
+;
+CREATE INDEX fk_entity_owner_id ON entity (owner_id ASC);
+-- visibility enum table:
+-- 1 - public
+-- 2 - only me
+-- 3 - friends
+-- 4 - visible to user list
+-- 5 - not visible to user list
+
+-- notification
+CREATE TABLE notification
+(
+    id           NUMBER(19)            NOT NULL,
+    type         VARCHAR2(50)          NOT NULL,
+    account_id      NUMBER(19)            NOT NULL,
+    viewed       Number(1) DEFAULT 0 NULL,
+    time_created DATE                  NOT NULL,
+    item_id      NUMBER(19)            NULL,
+    PRIMARY KEY (account_id,id),
+    CONSTRAINT fk_notification_account
+        FOREIGN KEY (account_id)
+            REFERENCES account (id),
+    CONSTRAINT fk_notification_notifiable
+        FOREIGN KEY (item_id)
+            REFERENCES notifiable (id)
+)
+;
+
+CREATE INDEX fk_notification_item_id ON notification (item_id ASC);
+
+-- event -> entity -> notifiable
+CREATE TABLE event
+(
+    id     NUMBER(19) NOT NULL,
+    timing DATE       NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_event_id
+        FOREIGN KEY (id)
+            REFERENCES entity (id)
+)
+;
+
+-- chat
+CREATE TABLE chat
+(
+    id   NUMBER(19) NOT NULL,
+    PRIMARY KEY (id),
+    kind NUMBER(4)  NOT NULL
+)
+;
+
 
 -- user -> account
 CREATE TABLE "USER"
@@ -24,74 +96,47 @@ CREATE TABLE "USER"
     lastLogin    DATE                    NOT NULL,
     intro        VARCHAR2(255) DEFAULT NULL,
     profile      VARCHAR2(500) DEFAULT NULL,
-    feed_id      NUMBER(19)              NOT NULL,
     chat_id      NUMBER(19)              NOT NULL,
     active       NUMBER(1)     DEFAULT 1 NOT NULL,
     PRIMARY KEY (id),
-    CONSTRAINT fk_user_feed
-        FOREIGN KEY (feed_id)
-            REFERENCES feed (id),
     CONSTRAINT fk_user_account
         FOREIGN KEY (id)
             REFERENCES account (id)
 )
 ;
--- trigger to forbid changes to feed_id and chat_id and registeredAt
+-- trigger to forbid changes to chat_id and registeredAt
 CREATE OR REPLACE TRIGGER "USER_BEFORE_INSERT"
     BEFORE UPDATE
     ON "USER"
     FOR EACH ROW
 BEGIN
-    :NEW.feed_id := :OLD.feed_id;
     :NEW.chat_id := :OLD.chat_id;
     :NEW.registeredAt := :OLD.registeredAt;
 END;
-
+/
 
 CREATE UNIQUE INDEX uq_mobile ON "USER" (mobile ASC);
 CREATE UNIQUE INDEX uq_username ON "USER" (username ASC);
 CREATE UNIQUE INDEX uq_email ON "USER" (email ASC);
 
 CREATE UNIQUE INDEX fk_uq_user_chat_id on "USER" (chat_id ASC);
-CREATE UNIQUE INDEX fk_uq_user_feed_id on "USER" (feed_id ASC);
-
--- chat
-CREATE TABLE chat
-(
-    id   NUMBER(19) NOT NULL,
-    PRIMARY KEY (id),
-    kind NUMBER(4)  NOT NULL
-)
-;
 
 -- page -> account
 CREATE TABLE page
 (
     id      NUMBER(19) NOT NULL,
     name    VARCHAR2(30) NOT NULL ,
-    feed_id NUMBER(19) NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT fk_page_account
         FOREIGN KEY (id)
-            REFERENCES account (id),
-    CONSTRAINT fk_page_feed
-        FOREIGN KEY (feed_id)
-            REFERENCES feed (id)
+            REFERENCES account (id)
 )
 ;
 
 
-CREATE UNIQUE INDEX uq_page_feed_id ON page (feed_id ASC);
 CREATE UNIQUE INDEX uq_page_name ON page (name ASC);
 
--- account
-CREATE TABLE account
-(
-    id   NUMBER(19) NOT NULL,
-    PRIMARY KEY (id),
-    kind NUMBER(4)  NOT NULL
-)
-;
+
 
 -- message -> notifiable
 CREATE TABLE message
@@ -137,73 +182,13 @@ CREATE TABLE post
     CONSTRAINT fk_post_entity
         FOREIGN KEY (id)
             REFERENCES entity (id),
-    feed_id NUMBER(19)                 NOT NULL,
     text    VARCHAR2(500) DEFAULT NULL NULL,
     PRIMARY KEY (id),
-    CONSTRAINT fk_post_feed
-        FOREIGN KEY (feed_id)
-            REFERENCES feed (id),
     kind    NUMBER(4)                  NOT NULL
 )
 ;
 
-CREATE INDEX fk_post_feed_id ON post (feed_id ASC);
 
--- entity -> notifiable
-CREATE TABLE entity
-(
-    id           NUMBER(19)           NOT NULL,
-    CONSTRAINT fk_entity_notifiable
-        FOREIGN KEY (id)
-            REFERENCES notifiable (id),
-    owner_id     NUMBER(19)           NOT NULL,
-    time_created DATE                 NOT NULL,
-    visibility   NUMBER(10)           NOT NULL,
-    active       NUMBER(10) DEFAULT 1 NOT NULL,
-    PRIMARY KEY (id),
-    CONSTRAINT fk_entity_account
-        FOREIGN KEY (id)
-            REFERENCES account (id),
-    kind         NUMBER(4)            NOT NULL
-)
-;
-CREATE INDEX fk_entity_owner_id ON entity (owner_id ASC);
--- visibility enum table:
--- 1 - public
--- 2 - only me
--- 3 - friends
--- 4 - visible to user list
--- 5 - not visible to user list
-
-CREATE TABLE notifiable
-(
-    id   NUMBER(19) NOT NULL,
-    PRIMARY KEY (id),
-    kind NUMBER(4)  NOT NULL
-);
-
-/
-
--- notification
-CREATE TABLE notification
-(
-    id           NUMBER(19)            NOT NULL,
-    type         VARCHAR2(50)          NOT NULL,
-    account_id      NUMBER(19)            NOT NULL,
-    viewed       Number(1) DEFAULT 0 NULL,
-    time_created DATE                  NOT NULL,
-    item_id      NUMBER(19)            NULL,
-    PRIMARY KEY (account_id,id),
-    CONSTRAINT fk_notification_account
-        FOREIGN KEY (account_id)
-            REFERENCES account (id),
-    CONSTRAINT fk_notification_notifiable
-        FOREIGN KEY (item_id)
-            REFERENCES notifiable (id)
-)
-;
-
-CREATE INDEX fk_notification_item_id ON notification (item_id ASC);
 
 -- member
 CREATE TABLE member
@@ -211,7 +196,7 @@ CREATE TABLE member
     id            NUMBER(19)             NOT NULL,
     PRIMARY KEY (id),
     account_id    NUMBER(19)             NOT NULL,
-    type          NUMBER(3) DEFAULT NULL NULL,
+    type          VARCHAR2(20) NOT NULL,
     group_chat_id NUMBER(19)             NOT NULL,
     CONSTRAINT fk_member_account
         FOREIGN KEY (account_id)
@@ -303,7 +288,7 @@ CREATE INDEX fk_comment_post_id ON "COMMENT" (post_id ASC);
 CREATE TABLE account_relationship
 (
     id        NUMBER(19)                 NOT NULL,
-    CONSTRAINT fk_notifiable_id
+    CONSTRAINT fk_relationship_notifiable_id
         FOREIGN KEY (id)
             REFERENCES notifiable (id),
     source_id NUMBER(19)                 NOT NULL,
@@ -328,9 +313,9 @@ CREATE TABLE account_relationship
 ;
 
 CREATE UNIQUE INDEX uq_friend ON account_relationship (source_id ASC, target_id ASC);
-CREATE INDEX fk_account_relationship_source_id ON account_relationship (source_id ASC);
-CREATE INDEX fk_account_relationship_target_id ON account_relationship (target_id ASC);
-CREATE INDEX fk_account_relationship_chat_id ON account_relationship (chat_id ASC);
+CREATE INDEX fk_relationship_source_id ON account_relationship (source_id ASC);
+CREATE INDEX fk_relationship_target_id ON account_relationship (target_id ASC);
+CREATE INDEX fk_relationship_chat_id ON account_relationship (chat_id ASC);
 
 -- visibility_user_set
 CREATE TABLE visibility_user_set
@@ -349,18 +334,6 @@ CREATE TABLE visibility_user_set
 ;
 
 CREATE INDEX fk_visibility_user_set_user_id ON visibility_user_set (user_id ASC);
-
--- event -> entity -> notifiable
-CREATE TABLE event
-(
-    id     NUMBER(19) NOT NULL,
-    timing DATE       NULL,
-    PRIMARY KEY (id),
-    CONSTRAINT fk_event_id
-        FOREIGN KEY (id)
-            REFERENCES entity (id)
-)
-;
 
 -- event_participant
 CREATE TABLE event_participant
@@ -396,7 +369,6 @@ SELECT
   , lastLogin
   , intro
   , profile
-  , feed_id
   , chat_id
 FROM
     "USER"
