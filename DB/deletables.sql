@@ -17,7 +17,7 @@
 -- share -> post -> entity -> notifiable = false soft by entity
 -- message -> notifiable ???
 -- react -> notifiable ???
--- account_relationship -> notifiable ???
+-- relationship -> notifiable ???
 -- user_page_relationship -> notifiable ???
 -- user -> account ???
 -- page -> account ???

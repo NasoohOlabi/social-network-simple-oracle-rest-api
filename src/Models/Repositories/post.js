@@ -4,89 +4,114 @@ const postRepository = {
 		post: {
 			query: `
 				BEGIN
-			:id:= inserts.post_insert(:post_text,'POST',:post_owner,:visibility);
+			:id:= post_insert(:text,'POST',:post_owner,:visibility);
 			commit;
 end; `,
 			/**
 			 * 
-			 * @param {string} post_text the main text in the post
+			 * @param {string} text the main text in the post
 			 * @param {number} post_owner account that own the post 
 			 * @param {"public"|"only me"|"friends only"|"friends except"|"only list"} visibility 
 			 * @returns bind list
 			 */
-			bind: (
-				post_text
+			bind: ({
+				text
 				, post_owner
 				, visibility
-			) => {
-				return { id: { dir: oracledb.BIND_OUT, type: oracledb.STRING }, post_text, post_owner, visibility }
+			}) => {
+				return { id: { dir: oracledb.BIND_OUT, type: oracledb.STRING }, text, post_owner, visibility }
 			}
 		},
 		media: {
 			query: `
 			BEGIN
-			:id := inserts.media_insert(path,:post_text,:post_owner,:visibility);
+			:id := media_insert(path,:text,:post_owner,:visibility);
 			commit;
 			end; `,
 			/**
 			 * 
 			 * @param {string} path the path to media file
-			 * @param {string} post_text the main text in the post
+			 * @param {string} text the main text in the post
 			 * @param {number} post_owner account that own the post 
 			 * @param {"public"|"only me"|"friends only"|"friends except"|"only list"} visibility 
 			 * @returns bind list
 			 */
-			bind: (
+			bind: ({
 				path
-				, post_text
+				, text
 				, post_owner
 				, visibility
-			) => {
-				return { id: { dir: oracledb.BIND_OUT, type: oracledb.STRING }, path, post_text, post_owner, visibility }
+			}) => {
+				return { id: { dir: oracledb.BIND_OUT, type: oracledb.STRING }, path, text, post_owner, visibility }
 			}
 		},
 		share: {
 			query: `
 			begin
-			:id := inserts.share_insert(:shared_post,:post_text,:post_owner,:visibility);
+			:id := share_insert(:shared_post,:text,:post_owner,:visibility);
 			commit;
 			end; `,
 			/**
 			 * 
 			 * @param {number} shared_post
-			 * @param {string} post_text the main text in the post
+			 * @param {string} text the main text in the post
 			 * @param {number} post_owner account that own the post 
 			 * @param {"public"|"only me"|"friends only"|"friends except"|"only list"} visibility 
 			 * @returns bind list
 			 */
-			bind: (
+			bind: ({
 				shared_post
-				, post_text
+				, text
 				, post_owner
 				, visibility
-			) => {
-				return { id: { dir: oracledb.BIND_OUT, type: oracledb.STRING }, shared_post, post_text, post_owner, visibility }
+			}) => {
+				return { id: { dir: oracledb.BIND_OUT, type: oracledb.STRING }, shared_post, text, post_owner, visibility }
 			}
 		},
 		comment: {
 			query: `
 			begin
-			:id := inserts.comment_insert(: commented_to_post:post_text,:post_owner,:visibility) id from dual`,
+			:id := comment_insert(: commented_to_post:text,:post_owner,:visibility) id from dual`,
 			/**
 			 * 
 			 * @param {number} commented_to_post the post which the comment is on
-			 * @param {string} post_text the main text in the post
+			 * @param {string} text the main text in the post
 			 * @param {number} post_owner account that own the post 
 			 * @param {"public"|"only me"|"friends only"|"friends except"|"only list"} visibility 
 			 * @returns bind list
 			 */
-			bind: (
+			bind: ({
 				commented_to_post
-				, post_text
+				, text
 				, post_owner
 				, visibility
-			) => {
-				return { id: { dir: oracledb.BIND_OUT, type: oracledb.STRING }, commented_to_post, post_text, post_owner, visibility }
+			}) => {
+				return { id: { dir: oracledb.BIND_OUT, type: oracledb.STRING }, commented_to_post, text, post_owner, visibility }
+			}
+		},
+		react: {
+			query: `
+			begin
+			:id := react_insert(:react_post_id,:react_user_id,:react_type);
+			commit;
+			end; `,
+			/**
+			 * 
+			 * @param {number} react_post_id the post which the react is on
+			 * @param {string} react_user_id the type of react
+			 * @param {number} react_type account that own the post
+			 * @returns bind list
+			 * @throws {Error} if react_user_id is not one of the following: "like", "love", "haha", "wow", "sad", "angry"
+			 */
+			bind: ({
+				react_post_id
+				, react_user_id
+				, react_type
+			}) => {
+				if (react_user_id !== "like" && react_user_id !== "love" && react_user_id !== "haha" && react_user_id !== "wow" && react_user_id !== "sad" && react_user_id !== "angry") {
+					throw new Error("react_user_id is not one of the following: \"like\", \"love\", \"haha\", \"wow\", \"sad\", \"angry\"");
+				}
+				return { id: { dir: oracledb.BIND_OUT, type: oracledb.STRING }, react_post_id, react_user_id, react_type }
 			}
 		}
 	}

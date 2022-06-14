@@ -5,7 +5,7 @@ const chatRepository = {
 		GroupChat: {
 			query: `
 				BEGIN
-				:id := INSERTS.group_chat_insert(:group_name);
+				:id := group_chat_insert(:group_name);
 				commit;
 				END;
 			`,
@@ -14,14 +14,14 @@ const chatRepository = {
 			 * @param {string} group_name the name of the group
 			 * @returns bind list
 			 */
-			bind: (group_name) => {
+			bind: ({group_name}) => {
 				return { id: { dir: oracledb.BIND_OUT, type: oracledb.STRING }, group_name }
 			}
 		},
 		GroupMember: {
 			query: `
 				BEGIN
-				:id := inserts.member_insert(:account, :group, :role);
+				:id := member_insert(:account, :group, :role);
 				commit;
 				end;
 			`
@@ -33,14 +33,14 @@ const chatRepository = {
 			 * @param {string} role is he and admin, joker, talker...
 			 * @returns bind list
 			 */
-			bind: (account, group, role) => {
+			bind: ({account, group, role}) => {
 				return { id: { dir: oracledb.BIND_OUT, type: oracledb.STRING }, account, group, role}
 			}
 		},
 		Message: {
 			query: `
 				begin
-				:id := inserts.message_insert(:sender,:text, :chat)
+				:id := message_insert(:sender,:text, :chat)
 				commit;
 				end;
 				`,
@@ -51,7 +51,7 @@ const chatRepository = {
 			 * @param {number} chat 
 			 * @returns bind list
 			 */
-			bind: (sender, text, chat) => {
+			bind: ({sender, text, chat}) => {
 				return { id: { dir: oracledb.BIND_OUT, type: oracledb.STRING }, sender, text, chat}
 			}
 		}
