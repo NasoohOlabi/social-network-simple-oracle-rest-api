@@ -5,54 +5,75 @@ const chatRepository = {
 		GroupChat: {
 			query: `
 				BEGIN
-				:id := group_chat_insert(:group_name);
+				:id := group_chat_insert(:name);
 				commit;
 				END;
 			`,
-			/**
-			 * 
-			 * @param {string} group_name the name of the group
-			 * @returns bind list
-			 */
-			bind: ({group_name}) => {
-				return { id: { dir: oracledb.BIND_OUT, type: oracledb.STRING }, group_name }
+			bind: ({ name }) => {
+				return { id: { dir: oracledb.BIND_OUT, type: oracledb.STRING }, name }
 			}
 		},
 		GroupMember: {
 			query: `
 				BEGIN
-				:id := member_insert(:account, :group, :role);
+				:id := member_insert(:account_id, :group_chat_id, :type);
 				commit;
 				end;
 			`
 			,
-			/**
-			 * 
-			 * @param {number} account who are you adding
-			 * @param {number} group where are you adding him
-			 * @param {string} role is he and admin, joker, talker...
-			 * @returns bind list
-			 */
-			bind: ({account, group, role}) => {
-				return { id: { dir: oracledb.BIND_OUT, type: oracledb.STRING }, account, group, role}
+			bind: ({ account_id, group_chat_id, type }) => {
+				return { id: { dir: oracledb.BIND_OUT, type: oracledb.STRING }, account_id, group_chat_id, type }
 			}
 		},
 		Message: {
 			query: `
 				begin
-				:id := message_insert(:sender,:text, :chat)
+				:id := message_insert(:message_from,:message, :chat_id)
 				commit;
 				end;
 				`,
-			/**
-			 * 
-			 * @param {number} sender 
-			 * @param {string} text 
-			 * @param {number} chat 
-			 * @returns bind list
-			 */
-			bind: ({sender, text, chat}) => {
-				return { id: { dir: oracledb.BIND_OUT, type: oracledb.STRING }, sender, text, chat}
+			bind: ({ message_from, message, chat_id }) => {
+				return { id: { dir: oracledb.BIND_OUT, type: oracledb.STRING }, message_from, message, chat_id }
+			}
+		}
+	},
+	update:
+	{
+		GroupChat: {
+			query: `
+				BEGIN
+				update "group_chat" set "name" = :name
+				where "id" = :id;
+				commit;
+				END;
+			`,
+			bind: ({ name }) => {
+				return { id, name }
+			}
+		},
+		GroupMember: {
+			query: `
+				BEGIN
+				update "member" set "account_id" = :account_id, "group_chat_id" = :group_chat, "type" = :type
+				where "id" = :id;
+				commit;
+				end;
+			`,
+			bind: ({ account_id, group_chat_id, type }) => {
+				return { id, account_id, group_chat_id, type }
+			}
+		},
+		Message: {
+			query: `
+				begin
+				update "message" set "message_from" = :message_from, "message" = :message, "chat_id" = :chat_id
+				where "id" = :id;
+				commit;
+				end;
+				`,
+			bind: ({ id, message_from, message, chat_id }) => {
+				return { id, message_from, message, chat_id }
+
 			}
 		}
 	}

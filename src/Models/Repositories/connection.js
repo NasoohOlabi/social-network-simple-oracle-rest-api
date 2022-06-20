@@ -15,10 +15,15 @@ const connectionAttributes = dbConnection.connAtter
  * @returns {Promise<{result:object?,error:object?}>} - the result of the query
  */
 const db = async (query, bindParams, options = {}) => {
+	let connection;
 	try {
 		console.log(`query : `);
 		console.log(query);
-		const connection = await oracledb.getConnection(connectionAttributes)
+
+		console.log(`bindParams : `);
+		console.log(bindParams);
+
+		connection = await oracledb.getConnection(connectionAttributes)
 		console.log(`connection to database was successful`)
 		const result = await connection.execute(query, bindParams, options);
 		console.log(`got result ${JSON.stringify(result)}`)
@@ -33,6 +38,8 @@ const db = async (query, bindParams, options = {}) => {
 	} catch (err) {
 		console.log(`got error ${JSON.stringify(err)}`)
 		return { error: err, result: null }
+	} finally {
+		await connection.close()
 	}
 };
 

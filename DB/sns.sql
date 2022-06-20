@@ -113,6 +113,18 @@ CREATE UNIQUE INDEX "uq_email" ON "user" ("email" ASC);
 
 CREATE UNIQUE INDEX "fk_uq_user_chat_id" on "user" ("chat_id" ASC);
 
+CREATE TABLE "jwt"
+(
+    "id"   NUMBER(19) NOT NULL,
+    "token" VARCHAR2(255),
+    PRIMARY KEY ("id"),
+    CONSTRAINT "fk_jwt_user"
+        FOREIGN KEY ("id")
+            REFERENCES "user" ("id")
+)
+;
+
+
 -- page -> account
 CREATE TABLE "page"
 (

@@ -18,34 +18,43 @@
 -- message -> notifiable ???
 -- react -> notifiable ???
 -- relationship -> notifiable ???
--- user_page_relationship -> notifiable ???
 -- user -> account ???
 -- page -> account ???
 -- conversation -> chat ???
 -- group_chat -> chat ???
 CREATE OR REPLACE PROCEDURE delete_visibility_user_set
 (
-    entityId NUMBER(19)
-    , userId NUMBER(19)
+    entityId NUMBER
+    , userId NUMBER
 ) IS
 begin
-    delete from visibility_user_set where entity_id = entityId and user_id = userId;
+    delete from "visibility_user_set" where "entity_id" = entityId and "user_id" = userId;
 END;
+/
 CREATE OR REPLACE PROCEDURE delete_event_participant
 (
-    eventId NUMBER(19)
-    , userId NUMBER(19)
+    eventId NUMBER
+    , userId NUMBER
 ) IS
 begin
-    delete from event_participant where event_id = eventId and user_id = userId;
+    delete from "event_participant" where "event_id" = eventId and "user_id" = userId;
 END;
+/
 CREATE OR REPLACE PROCEDURE delete_entity
 (
-    entityId NUMBER(19)
+    entityId NUMBER
 ) IS
 begin
-    UPDATE entity SET active = 0 WHERE id = entityId;
+    UPDATE "entity" SET "active" = 0 WHERE "id" = entityId;
 END;
     --group member
     --member
     --notification
+/
+CREATE OR REPLACE PROCEDURE delete_relationship
+(
+    Id NUMBER
+) IS
+begin
+    delete from "relationship" where "id" = Id;
+end;

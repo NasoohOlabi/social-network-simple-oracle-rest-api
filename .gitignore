@@ -1,2 +1,4 @@
 DB/.idea
 .gitignore
+node_modules
+.idea

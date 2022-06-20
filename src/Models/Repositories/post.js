@@ -114,6 +114,101 @@ end; `,
 				return { id: { dir: oracledb.BIND_OUT, type: oracledb.STRING }, react_post_id, react_user_id, react_type }
 			}
 		}
+	},
+	update: {
+		post: {
+			query: `
+				BEGIN
+				update "post" set
+					"text" = :text
+				where "id" = :id;
+					commit;
+				end; `,
+			bind: ({
+				id,
+				text
+			}) => {
+				return { id, text }
+			}
+		},
+		media: {
+			query: `
+			BEGIN
+			update "media" set
+				"path" = :path
+			where "id" = :id;
+			update "post" set
+				"text" = :text
+			where "id" = :id
+			commit;
+			end;`,
+			bind: ({
+				path
+				, text
+				, id
+			}) => {
+				return { id, path, text }
+			}
+		},
+		share: {
+			query: `
+			BEGIN
+			update "share" set
+				"post_id" = :post_id
+			where "id" = :id;
+			update "post" set
+				"text" = :text
+			where "id" = :id
+			commit;
+			end;`,
+			bind: ({
+				post_id
+				, text
+				, id
+			}) => {
+				return { id, post_id, text }
+			}
+		},
+		comment: {
+			query: `
+			BEGIN
+			update "share" set
+				"post_id" = :post_id,
+				"text" = :text
+			where "id" = :id;
+			commit;
+			end;
+			`,
+			bind: ({
+				post_id
+				, text
+				, id
+			}) => {
+				return { id, post_id, text }
+			}
+		},
+		react: {
+			query: `
+			begin
+			update "react" set
+				"post_id" = :post_id,
+				"user_id" = :user_id,
+				"type" = :type
+			where "id" = :id;
+			commit;
+			end; `,
+			bind: ({
+				post_id
+				, user_id
+				, type
+				, id
+			}) => {
+				if (type !== "like" && type !== "love" && type !== "haha" && type !== "wow" && type !== "sad" && type !== "angry") {
+					throw new Error("type is not one of the following: \"like\", \"love\", \"haha\", \"wow\", \"sad\", \"angry\"");
+				}
+				return { id, post_id, user_id, type }
+			}
+		}
 	}
 }
 

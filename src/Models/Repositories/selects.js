@@ -1,7 +1,7 @@
 
 const __select_id = (name) => {
 	return {
-		query: `select * from "${name}" where id = :id`,
+		query: `select * from "${name}" where "id" = :id`,
 		bind: (id) => { return { id } }
 	}
 }
@@ -9,16 +9,16 @@ const __select_all = (name) => {
 	return { query: `select * from "${name}"`, bind: () => { return {} } }
 }
 const __select_id_join_entity = (name) => {
-	return { query: `select * from "${name}" join "entity" using(id) where active = 1 and id = :id`, bind: (id) => { return { id } } }
+	return { query: `select * from "${name}" join "entity" using("id") where active = 1 and "id" = :id`, bind: (id) => { return { id } } }
 }
 const __select_all_join_entity = (name) => {
-	return { query: `select * from "${name}" join "entity" using(id) where active = 1`, bind: () => { return {} } }
+	return { query: `select * from "${name}" join "entity" using("id") where active = 1`, bind: () => { return {} } }
 }
 const __select_id_join_entity_join_post = (name) => {
-	return { query: `select * from "${name}" join "entity" using(id) join post using(id) where active = 1 and id = :id`, bind: (id) => { return { id } } }
+	return { query: `select * from "${name}" join "entity" using("id") join post using("id") where active = 1 and "id" = :id`, bind: (id) => { return { id } } }
 }
 const __select_all_join_entity_join_post = (name) => {
-	return { query: `select * from "${name}" join "entity" using(id) join post using(id) where active = 1`, bind: () => { return {} } }
+	return { query: `select * from "${name}" join "entity" using("id") join post using("id") where active = 1`, bind: () => { return {} } }
 }
 
 

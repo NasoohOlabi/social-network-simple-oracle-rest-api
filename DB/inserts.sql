@@ -180,7 +180,12 @@ VALUES
         chat_insert('saved_messages'),
         1
     );
+INSERT INTO
+    "jwt" ("id","token")
+VALUES
+    (user_id, NULL);
 
+    
 RETURN user_id;
 
 END;
